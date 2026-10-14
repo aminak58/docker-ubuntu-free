@@ -188,7 +188,7 @@ def main():
                   dt.datetime.fromisoformat(a["confirmation_time_utc"].replace("Z","+00:00"))).total_seconds()<=12*60
                   for a,b in zip(events,events[1:]))
     summary={"variant":"EXP-ML-SWING-CONTINUATION-DUKASCOPY-M1",
-             "source":"Dukascopy XAUUSD M1 BID; not MT5", "label_horizon_bars":H,
+             "source":"Pinned public GitHub mirror of Dukascopy-attributed XAUUSD M1 BID, QC-filtered; not MT5 or direct provider download", "label_horizon_bars":H,
              "labels":{
               "y_tk":"directed TK spread stays >0 on bars 1..12 and terminal spread > initial spread",
               "y_price":"directed close(C+12) > directed close(C)",
