@@ -21,16 +21,18 @@ jobs:
         run: python -m pip install --disable-pip-version-check "numpy>=1.26,<3" "scikit-learn>=1.5,<2"
       - name: Fetch pinned public Dukascopy-attributed XAUUSD M1 BID archive
         run: python experiments/exp-ml-swing-continuation-dukascopy-m1/mirror_source.py
-      - name: Build causal swing event dataset and compare M0 M1 M2
+      - name: Reject likely synthetic long flat price intervals (before label or ML)
+        run: python experiments/exp-ml-swing-continuation-dukascopy-m1/sanitize.py
+      - name: Build causal swing event dataset and compare M0 M1 M2 on quality-controlled data
         run: |
           python experiments/exp-ml-swing-continuation-dukascopy-m1/analyze.py \
-            --data runner-output/xauusd_m1_bid.csv \
+            --data runner-output/xauusd_m1_bid_quality_checked.csv \
             --outdir runner-output --mode full
       - name: Archive research evidence (one day only)
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: dukascopy-m1-archive-research
+          name: dukascopy-m1-QC-research
           path: runner-output/
           retention-days: 1
           if-no-files-found: warn
