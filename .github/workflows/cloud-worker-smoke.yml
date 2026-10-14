@@ -1,0 +1,58 @@
+name: Cloud worker smoke test
+
+on:
+  push:
+    branches:
+      - experiment/agent-cloud-runner-smoke-20261014
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Execute Python and sample public OHLC
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import datetime
+          import json
+          import os
+          import sys
+          import urllib.request
+
+          result = {
+              "test": "cloud-worker-smoke",
+              "utc": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              "python_version": sys.version.split()[0],
+              "calculation": sum(i * i for i in range(10)),
+              "ohlc_status": "not_checked",
+          }
+          assert result["calculation"] == 285
+          url = "https://data-api.binance.vision/api/v3/klines?symbol=BTCUSDT&interval=1m&limit=3"
+          try:
+              req = urllib.request.Request(url, headers={"User-Agent": "CloudWorkerSmoke/1.0"})
+              with urllib.request.urlopen(req, timeout=12) as f:
+                  candles = json.load(f)
+              if not isinstance(candles, list) or len(candles) != 3:
+                  raise ValueError("unexpected candle count")
+              for candle in candles:
+                  op, hi, lo, close = [float(candle[i]) for i in (1, 2, 3, 4)]
+                  if not (lo <= min(op, close) <= max(op, close) <= hi):
+                      raise ValueError("invalid OHLC")
+              result.update({"ohlc_status": "ok", "candle_count": len(candles)})
+          except Exception as exc:
+              result.update({"ohlc_status": "failed", "ohlc_error": str(exc)[:200]})
+          os.makedirs("cloud-worker-results", exist_ok=True)
+          with open("cloud-worker-results/result.json", "w", encoding="utf-8") as f:
+              json.dump(result, f, ensure_ascii=False, indent=2)
+          print("CLOUD_WORKER_RESULT=" + json.dumps(result, ensure_ascii=False))
+          PY
+      - name: Upload smoke test artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cloud-worker-smoke
+          path: cloud-worker-results/result.json
+          retention-days: 1
