@@ -122,17 +122,17 @@ def delta_ci_day(rows,a,b,seed=20261014):
 
 def run_train(events):
     out={"scheme":{
-       "train":["2026-06-01","2026-08-01"],
-       "validation":["2026-08-03","2026-09-01"],
-       "internal_test":["2026-09-03","2026-10-01"],
+       "train":["2026-03-01","2026-06-01"],
+       "validation":["2026-06-03","2026-07-01"],
+       "internal_test":["2026-07-03","2026-08-20"],
        "gap":"2 full days between partitions; >= 12-minute label horizon",
        "test_is_genuine_untouched_oos":False,
        "model":"LogisticRegression L2 C=1, StandardScaler trained only on train",
        "hyperparameter_search":False}}
     slices={}
-    for name,(lo,hi) in (("train",("2026-06-01","2026-08-01")),
-                         ("validation",("2026-08-03","2026-09-01")),
-                         ("internal_test",("2026-09-03","2026-10-01"))):
+    for name,(lo,hi) in (("train",("2026-03-01","2026-06-01")),
+                         ("validation",("2026-06-03","2026-07-01")),
+                         ("internal_test",("2026-07-03","2026-08-20"))):
         slices[name]=[r for r in events if r["label_status"]=="EXACT_CLOSE" and
                       lo<=r["confirmation_time_utc"][:10]<hi and
                       r["outcome_end_utc"][:10]<hi]
