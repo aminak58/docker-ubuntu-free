@@ -48,3 +48,9 @@ Status: independent development variant; no MT5/broker price parity or trading e
 
 ## 2026-10-14 access finding
 Direct daily Dukascopy .bi5 URL returned HTTP 503 from the GitHub runner. The documented public archive at kevingtlin/Market-Data-Lab is used as a **fallback provider**. Its declared Dukascopy provenance is not independently cryptographically confirmed. Source counts and event populations must remain separate from direct Dukascopy and MT5 evidence.
+
+## Quality gate added after observing raw archive (2026-10-14)
+- Initial unfiltered ML run must NOT be used for research inference: 61,603 / 230,813 rows have O=H=L=C; weekend quotes include multiple 2-3 day static blocks. Those flat-filled intervals artificially join non-trading sessions and contaminate horizons.
+- Deterministic source QC, frozen **before re-training**: exclude every run of 5 or more consecutive O=H=L=C 1-minute candles. Remove their timestamps, never forward-fill; split event windows at resulting gaps. Five-minute threshold is a conservative feed-integrity heuristic, not trained or optimized for labels.
+- Run `sanitize.py` after `mirror_source.py` and pass `xauusd_m1_bid_quality_checked.csv` to `analyze.py`.
+- Versioned `quality_audit.json` reports how many bars and flat segments were removed. The original unclean run is FAIL for research evidence (pipeline execution PASS only).
