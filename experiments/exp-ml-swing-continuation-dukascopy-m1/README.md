@@ -4,7 +4,7 @@ Status: independent development variant; no MT5/broker price parity or trading e
 
 ## Absolute boundaries
 - Original private repository: `aminak58/ichimoku-structural-level-research`. Its frozen Structural Swing v0.1 source, prior Q25 variant, results, and tracks are never modified here.
-- This public branch uses an entirely different feed: Dukascopy historical XAUUSD 1-minute BID candles (UTC). Never pool event populations with MT5 or StrategyTune.
+- This public branch uses an entirely different feed: Dukascopy-attributed historical XAUUSD 1-minute BID candles (UTC), retrieved from a third-party public GitHub archive pinned to a commit; direct feed had HTTP 503. Never pool event populations with MT5 or StrategyTune.
 - No historical untouched OOS claim; internal temporal splits are development-only.
 
 ## Detector (semantically from frozen v0.1)
@@ -28,7 +28,7 @@ Status: independent development variant; no MT5/broker price parity or trading e
 - M0: train-only class prevalence.
 - M1: StandardScaler + Logistic Regression L2 C=1.0 on base features.
 - M2: same with single Q25 feature; compare on identical temporal samples.
-- Fixed windows: train June 1 to Aug 1, validation Aug 3 to Sep 1, test Sep 3 to Oct 1 (all 2026 UTC, exclusive upper bounds), with two full calendar days absent at boundaries.
+- Fixed archived-data windows: train March 1 to June 1, validation June 3 to July 1, internal test July 3 to Aug 20 (all 2026 UTC, exclusive upper bounds), with two full calendar days absent at boundaries.
 - The next 12-bar outcome must end before its split's upper boundary. Calibration: Brier, log loss, ECE(5). Report day-resampled paired Brier differences with no retuning on test.
 - No classifier if train has <15 of either class; no claim of success if test has weak class support.
 
@@ -45,3 +45,6 @@ Status: independent development variant; no MT5/broker price parity or trading e
 - Contiguous segmentation avoids interpolation, at the cost of excluding events near feed gaps.
 - Archived MT5 results and Q25 historical outcome claims are not transferred into this variant.
 - Any comparison across feeds requires a future separate harmonized study.
+
+## 2026-10-14 access finding
+Direct daily Dukascopy .bi5 URL returned HTTP 503 from the GitHub runner. The documented public archive at kevingtlin/Market-Data-Lab is used as a **fallback provider**. Its declared Dukascopy provenance is not independently cryptographically confirmed. Source counts and event populations must remain separate from direct Dukascopy and MT5 evidence.
